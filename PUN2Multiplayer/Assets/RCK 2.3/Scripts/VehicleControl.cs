@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Photon.Pun;
 
 public enum ControlMode { simple = 1, touch = 2 }
 
@@ -13,6 +14,8 @@ public class VehicleControl : MonoBehaviour
     public ControlMode controlMode = ControlMode.simple;
 
     public bool activeControl = false;
+
+    PhotonView View;
 
 
     // Wheels Setting /////////////////////////////////
@@ -268,60 +271,66 @@ public class VehicleControl : MonoBehaviour
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    
+    private void Start()
+    {
+        View = GetComponent<PhotonView>();
+    }
 
     void Awake()
     {
 
-        if (carSetting.automaticGear) NeutralGear = false;
-
-        myRigidbody = transform.GetComponent<Rigidbody>();
-
-        wheels = new WheelComponent[4];
-
-        wheels[0] = SetWheelComponent(carWheels.wheels.frontRight, carSetting.maxSteerAngle, carWheels.wheels.frontWheelDrive, carWheels.wheels.frontRight.position.y);
-        wheels[1] = SetWheelComponent(carWheels.wheels.frontLeft, carSetting.maxSteerAngle, carWheels.wheels.frontWheelDrive, carWheels.wheels.frontLeft.position.y);
-
-        wheels[2] = SetWheelComponent(carWheels.wheels.backRight, 0, carWheels.wheels.backWheelDrive, carWheels.wheels.backRight.position.y);
-        wheels[3] = SetWheelComponent(carWheels.wheels.backLeft, 0, carWheels.wheels.backWheelDrive, carWheels.wheels.backLeft.position.y);
-
-        if (carSetting.carSteer)
-        steerCurAngle = carSetting.carSteer.localEulerAngles;
-
-        foreach (WheelComponent w in wheels)
+      if(View.IsMine)
         {
+            if (carSetting.automaticGear) NeutralGear = false;
+
+            myRigidbody = transform.GetComponent<Rigidbody>();
+
+            wheels = new WheelComponent[4];
+
+            wheels[0] = SetWheelComponent(carWheels.wheels.frontRight, carSetting.maxSteerAngle, carWheels.wheels.frontWheelDrive, carWheels.wheels.frontRight.position.y);
+            wheels[1] = SetWheelComponent(carWheels.wheels.frontLeft, carSetting.maxSteerAngle, carWheels.wheels.frontWheelDrive, carWheels.wheels.frontLeft.position.y);
+
+            wheels[2] = SetWheelComponent(carWheels.wheels.backRight, 0, carWheels.wheels.backWheelDrive, carWheels.wheels.backRight.position.y);
+            wheels[3] = SetWheelComponent(carWheels.wheels.backLeft, 0, carWheels.wheels.backWheelDrive, carWheels.wheels.backLeft.position.y);
+
+            if (carSetting.carSteer)
+                steerCurAngle = carSetting.carSteer.localEulerAngles;
+
+            foreach (WheelComponent w in wheels)
+            {
 
 
-            WheelCollider col = w.collider;
-            col.suspensionDistance = carWheels.setting.Distance;
-            JointSpring js = col.suspensionSpring;
+                WheelCollider col = w.collider;
+                col.suspensionDistance = carWheels.setting.Distance;
+                JointSpring js = col.suspensionSpring;
 
-            js.spring = carSetting.springs;
-            js.damper = carSetting.dampers;
-            col.suspensionSpring = js;
-
-
-            col.radius = carWheels.setting.Radius;
-
-            col.mass = carWheels.setting.Weight;
+                js.spring = carSetting.springs;
+                js.damper = carSetting.dampers;
+                col.suspensionSpring = js;
 
 
-            WheelFrictionCurve fc = col.forwardFriction;
+                col.radius = carWheels.setting.Radius;
 
-            fc.asymptoteValue = 5000.0f;
-            fc.extremumSlip = 2.0f;
-            fc.asymptoteSlip = 20.0f;
-            fc.stiffness = carSetting.stiffness;
-            col.forwardFriction = fc;
-            fc = col.sidewaysFriction;
-            fc.asymptoteValue = 7500.0f;
-            fc.asymptoteSlip = 2.0f;
-            fc.stiffness = carSetting.stiffness;
-            col.sidewaysFriction = fc;
+                col.mass = carWheels.setting.Weight;
 
+
+                WheelFrictionCurve fc = col.forwardFriction;
+
+                fc.asymptoteValue = 5000.0f;
+                fc.extremumSlip = 2.0f;
+                fc.asymptoteSlip = 20.0f;
+                fc.stiffness = carSetting.stiffness;
+                col.forwardFriction = fc;
+                fc = col.sidewaysFriction;
+                fc.asymptoteValue = 7500.0f;
+                fc.asymptoteSlip = 2.0f;
+                fc.stiffness = carSetting.stiffness;
+                col.sidewaysFriction = fc;
+
+
+            }
 
         }
-
 
     }
 

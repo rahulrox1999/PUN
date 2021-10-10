@@ -82,11 +82,11 @@ public class VehicleCamera : MonoBehaviour
     }
 
 
-    public void CameraSwitch()
+   /* public void CameraSwitch()
     {
         Switch++;
         if (Switch > cameraSwitchView.Count) { Switch = 0; }
-    }
+    }*/
 
 
     public void CarAccelForward(float amount)
